@@ -24,12 +24,13 @@ EOT
       path   = optional(string)
     }))
   }))
-  # --- Unconfirmed validation candidates, derived from github_repository_pages's provider source ---
-  # Not auto-enabled: either a bespoke provider validator we can't safely translate,
-  # or a path that crosses a list-typed block (needs its own for_each wrapping).
-  # Review, translate into a real validation{} block above, and delete once confirmed.
-  # path: build_type
-  #   condition: contains(["legacy", "workflow"], value)
-  #   message:   must be one of: legacy, workflow
+  validation {
+    condition = alltrue([
+      for k, v in var.repository_pageses : (
+        v.build_type == null || (contains(["legacy", "workflow"], v.build_type))
+      )
+    ])
+    error_message = "must be one of: legacy, workflow"
+  }
 }
 
